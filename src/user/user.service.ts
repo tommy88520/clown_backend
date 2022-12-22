@@ -13,6 +13,8 @@ export class UserService {
     private cartService: CartService,
   ) {}
   async createAccount(createUserDto: CreateUserDto) {
+    const user = this.validateUser(createUserDto.email);
+    if (user) return user;
     const { password } = createUserDto;
     const hash = await bcrypt.hash(password, 10);
     const userId = uuidv4();
@@ -24,6 +26,18 @@ export class UserService {
       password: hash,
       confirm_password: hash,
       token: null,
+    });
+  }
+
+  async googleCreateAccount(googleCreateUser) {
+    const userId = uuidv4();
+    await this.cartService.initCart(userId);
+    return await this.userRepo.createAccount({
+      userId,
+      createDate: new Date(),
+      ...googleCreateUser,
+      password: null,
+      confirm_password: null,
     });
   }
 

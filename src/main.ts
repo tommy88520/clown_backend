@@ -4,12 +4,13 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // app.setGlobalPrefix('api');
   app.enableCors();
   app.use(
     session({
       secret: 'keyboard cat', // get env
       resave: false,
-      saveUninitialized: true,
+      saveUninitialized: false,
       cookie: { maxAge: 60000 },
     }),
   );

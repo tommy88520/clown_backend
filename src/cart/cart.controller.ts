@@ -24,7 +24,7 @@ export class CartController {
     private jwtService: JwtService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post()
   async addCartItem(@Body() AddCartDto: AddCartDto[], @Headers() headers) {
     const userData: any = this.jwtService.decode(
