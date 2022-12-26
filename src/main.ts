@@ -8,9 +8,10 @@ async function bootstrap() {
   app.enableCors();
   app.use(
     session({
+      name: 'CLOWN_SESSION_ID',
       secret: 'keyboard cat', // get env
       resave: false,
-      saveUninitialized: false,
+      saveUninitialized: true,
       cookie: { maxAge: 60000 },
     }),
   );

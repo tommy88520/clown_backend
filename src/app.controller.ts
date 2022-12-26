@@ -14,6 +14,7 @@ import { LocalAuthGuard } from './auth/local-auth.guard';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { authenticatedGuard } from './auth/authenticated.guard';
 import { GoogleAuthGuard } from './auth/google-auth.guard';
+import { OAuth2Client } from 'google-auth-library';
 
 @Controller()
 export class AppController {
@@ -28,23 +29,28 @@ export class AppController {
 
     return await this.authService.login(body.username);
   }
-  @Get('google/signUp')
-  // @UseGuards(GoogleAuthGuard)
-  async googleLogin(@Request() request) {
+  @Get('google/login')
+  @UseGuards(GoogleAuthGuard)
+  async googleLogin(@Body() body) {
+    console.log('body', body);
+
     return { msg: 'Google Authentication' };
   }
-  // @Get('google/redirect')
-  // @Redirect('http://localhost:3000/sign-up')
-  // @UseGuards(GoogleAuthGuard)
-  // async handleRedirect(@Request() request) {
-  //   console.log('request.user', request.user);
-  //   return request.user;
-  // }
+  @Get('google/redirect')
+  @Redirect('http://localhost:3000')
+  @UseGuards(GoogleAuthGuard)
+  async handleRedirect(@Request() request) {
+    console.log('request.user', request.user);
+    return request.user;
+  }
 
-  @UseGuards(JwtAuthGuard)
-  @UseGuards(authenticatedGuard)
+  // @UseGuards(JwtAuthGuard)
+  // @UseGuards(authenticatedGuard)
   @Get('profile')
   async getProfile(@Request() req, @Session() session) {
+    // console.log(session.id);
+    console.log('session', req.user);
+
     return `fds`;
   }
   @Get()
