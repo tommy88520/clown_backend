@@ -5,14 +5,17 @@ import * as passport from 'passport';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // app.setGlobalPrefix('api');
-  app.enableCors();
+  app.enableCors({
+    origin: [process.env.FRONTEND_URL],
+    credentials: true,
+  });
   app.use(
     session({
       name: 'CLOWN_SESSION_ID',
       secret: 'keyboard cat', // get env
       resave: false,
       saveUninitialized: true,
-      cookie: { maxAge: 60000 },
+      cookie: { maxAge: 1000 * 60 * 24 },
     }),
   );
   app.use(passport.initialize());

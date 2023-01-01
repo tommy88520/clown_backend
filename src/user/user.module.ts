@@ -5,10 +5,15 @@ import { User, userSchema } from './entities/user.entity';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { UserRepository } from './user.repository';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from '../auth/constants';
 
 @Module({
   imports: [
     CartModule,
+    JwtModule.register({
+      secret: jwtConstants.secret,
+    }),
     MongooseModule.forFeature([{ name: User.name, schema: userSchema }]),
   ],
   controllers: [UserController],

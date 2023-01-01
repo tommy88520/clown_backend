@@ -17,12 +17,4 @@ export class CategoryService {
   findCategoryDetail(category: string) {
     return this.categoryRepo.findCategoryDetail(category);
   }
-
-  // update(id: number, updateCategoryDto: UpdateCategoryDto) {
-  //   return `This action updates a #${id} category`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} category`;
-  // }
 }

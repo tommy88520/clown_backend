@@ -24,40 +24,30 @@ export class AppController {
   ) {}
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() body) {
-    console.log(body);
-
-    return await this.authService.login(body.username);
+  async login(@Body() body, @Session() session) {
+    return await this.authService.login(body.username, session.id);
   }
   @Get('google/login')
   @UseGuards(GoogleAuthGuard)
-  async googleLogin(@Body() body) {
-    console.log('body', body);
-
+  async googleLogin(@Body() body, @Session() session) {
     return { msg: 'Google Authentication' };
   }
   @Get('google/redirect')
   @Redirect('http://localhost:3000')
   @UseGuards(GoogleAuthGuard)
-  async handleRedirect(@Request() request) {
-    console.log('request.user', request.user);
-    return request.user;
+  async handleRedirect(@Request() request, @Session() session) {
+    const result = await this.authService.login(request.user.email, session.id);
+    return result;
   }
 
   // @UseGuards(JwtAuthGuard)
   // @UseGuards(authenticatedGuard)
   @Get('profile')
   async getProfile(@Request() req, @Session() session) {
-    // console.log(session.id);
-    console.log('session', req.user);
-
-    return `fds`;
+    return `success`;
   }
   @Get()
   getHello(): string {
     return this.appService.getHello();
   }
-}
-function Req() {
-  throw new Error('Function not implemented.');
 }

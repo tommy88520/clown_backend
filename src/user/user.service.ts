@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Profile } from 'passport-google-oauth20';
 import { UserRepository } from './user.repository';
 import { CartService } from '../cart/cart.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,31 +14,47 @@ export class UserService {
     private cartService: CartService,
   ) {}
   async createAccount(createUserDto: CreateUserDto) {
-    const user = this.validateUser(createUserDto.email);
-    if (user) return user;
-    const { password } = createUserDto;
-    const hash = await bcrypt.hash(password, 10);
-    const userId = uuidv4();
-    await this.cartService.initCart(userId);
-    return await this.userRepo.createAccount({
-      userId,
-      createDate: new Date(),
-      ...createUserDto,
-      password: hash,
-      confirm_password: hash,
-      token: null,
-    });
+    const user = await this.validateUser(createUserDto.email);
+    if (user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: '帳號已經存在',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    } else {
+      const { password } = createUserDto;
+      const hash = await bcrypt.hash(password, 10);
+      const userId = uuidv4();
+      await this.cartService.initCart(userId);
+      return await this.userRepo.createAccount({
+        userId,
+        ...createUserDto,
+        password: hash,
+        confirm_password: hash,
+        token: null,
+        google_login: false,
+        session_id: null,
+        createDate: new Date(),
+      });
+    }
   }
 
-  async googleCreateAccount(googleCreateUser) {
+  async googleCreateAccount(profile: Profile) {
     const userId = uuidv4();
     await this.cartService.initCart(userId);
     return await this.userRepo.createAccount({
       userId,
-      createDate: new Date(),
-      ...googleCreateUser,
+      nickname: profile.emails[0].value,
+      email: profile.emails[0].value,
+      gender: null,
       password: null,
       confirm_password: null,
+      token: null,
+      google_login: true,
+      session_id: null,
+      createDate: new Date(),
     });
   }
 
@@ -45,23 +62,16 @@ export class UserService {
     return await this.userRepo.validateUser(email);
   }
 
-  async updateToken(email: string, token: string) {
-    return await this.userRepo.updateToken(email, token);
+  async updateAuth(email: string, token: string, session_id: string) {
+    return await this.userRepo.updateAuth(email, token, session_id);
   }
 
-  // findAll() {
-  //   return `This action returns all user`;
-  // }
-
-  //   findOne(id: number) {
-  //     return `This action returns a #${id} user`;
-  //   }
-
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
-
-  //   remove(id: number) {
-  //     return `This action removes a #${id} user`;
-  //   }
+  async getUserInfo(session_id: string) {
+    const userData = await this.userRepo.getUserInfo(session_id);
+    if (!userData) {
+      return '非會員';
+    } else {
+      return userData;
+    }
+  }
 }

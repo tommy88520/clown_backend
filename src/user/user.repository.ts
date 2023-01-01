@@ -8,7 +8,7 @@ export class UserRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async findAllUser(query: FilterQuery<User>): Promise<User[]> {
-    return this.userModel.find(query);
+    return await this.userModel.find(query);
   }
 
   async validateUser(email: string): Promise<any> {
@@ -19,7 +19,14 @@ export class UserRepository {
     return await result.save();
   }
 
-  async updateToken(email: string, token): Promise<any> {
-    return await this.userModel.updateOne({ email }, { $set: { token } });
+  async updateAuth(email: string, token, session_id): Promise<any> {
+    const findUser = await this.userModel.updateOne(
+      { email },
+      { $set: { token, session_id } },
+    );
+    return findUser;
+  }
+  async getUserInfo(session_id: string): Promise<any> {
+    return await this.userModel.findOne({ session_id });
   }
 }

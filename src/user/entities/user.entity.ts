@@ -26,6 +26,12 @@ export class User {
   token: string | null;
 
   @Prop()
+  google_login: boolean;
+
+  @Prop()
+  session_id: string;
+
+  @Prop()
   create_time: Date;
 }
 export const userSchema = SchemaFactory.createForClass(User);
