@@ -1,20 +1,6 @@
-import { categorySchema } from './../category/entities/category.entity';
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  UseGuards,
-  Session,
-  Headers,
-  Request,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Session, Headers } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { LocalAuthGuard } from '../auth/local-auth.guard';
-import { AuthService } from '../auth/auth.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { JwtService } from '@nestjs/jwt';
 @Controller('user')
 export class UserController {
@@ -27,16 +13,8 @@ export class UserController {
   async createAccount(@Body() createUserDto: CreateUserDto) {
     return await this.userService.createAccount(createUserDto);
   }
-
-  // @UseGuards(LocalAuthGuard)
-  // @Post('login')
-  // async login(@Request() req): Promise<any> {
-  //   return this.authService.login();
-  // }
-  // @UseGuards(JwtAuthGuard)
   @Get('profile')
   async findOne(@Session() session, @Headers() headers) {
-    // console.log('profile', session.id);
     const auth = headers.authorization.slice(7);
 
     if (!headers.authorization || auth === 'null') {

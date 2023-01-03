@@ -6,15 +6,13 @@ import {
   Request,
   Session,
   Body,
-  Redirect,
+  Response,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
 import { LocalAuthGuard } from './auth/local-auth.guard';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { authenticatedGuard } from './auth/authenticated.guard';
 import { GoogleAuthGuard } from './auth/google-auth.guard';
-import { OAuth2Client } from 'google-auth-library';
+import { ConfigModule } from '@nestjs/config';
 
 @Controller()
 export class AppController {
@@ -29,19 +27,21 @@ export class AppController {
   }
   @Get('google/login')
   @UseGuards(GoogleAuthGuard)
-  async googleLogin(@Body() body, @Session() session) {
+  async googleLogin() {
     return { msg: 'Google Authentication' };
   }
   @Get('google/redirect')
-  @Redirect('http://localhost:3000')
   @UseGuards(GoogleAuthGuard)
-  async handleRedirect(@Request() request, @Session() session) {
+  async handleRedirect(
+    @Request() request,
+    @Session() session,
+    @Response() res,
+  ) {
+    res.redirect(process.env.FRONTEND_URL);
     const result = await this.authService.login(request.user.email, session.id);
     return result;
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @UseGuards(authenticatedGuard)
   @Get('profile')
   async getProfile(@Request() req, @Session() session) {
     return `success`;
